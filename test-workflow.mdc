@@ -1,0 +1,83 @@
+---
+# Rule: Test Runner Workflow System
+# Version: 1.1
+# Author: Gemini AI
+# Date: June 14, 2025
+---
+
+description: "Activates a testing agent that reads an execution summary, runs tests on specified files, and updates the summary with the results. Trigger with '/test'."
+globs: [] # This rule is not auto-attached.
+alwaysApply: true # The /test command should always be available.
+
+---
+
+# Test Runner Workflow System
+
+## Core Principle
+This system automates the quality assurance phase of the workflow. It acts as a dedicated testing agent that consumes the output from the `Executor Mode`'s summary, systematically runs tests, and reports back on the status of each file, creating a full-circle development process from planning to verification.
+
+## Mode Triggering
+1.  **Explicit Trigger:**
+    * If the user's prompt is **"/test"**, activate **Tester Mode**.
+
+## Tester Mode (Modular Workflow)
+**Primary Objective:** To read a post-execution summary, perform various tests on the files listed within it, and update the summary file with the results of those tests.
+
+**Instructions for AI in Tester Mode:**
+
+### Stage 1: Initialization & Test Plan Generation
+1.  **Acknowledge Mode:** Start by stating: "**Entering Tester Mode.**"
+2.  **Locate Summary File:**
+    * Assume the summary file is named `execution_summary.md` in the root directory. Attempt to read it.
+    * **On Failure (Not Found/Empty):** Report the error and exit. Example: "Error: Could not find `execution_summary.md`. Please run a plan/act cycle first, or provide the path to a valid summary file."
+3.  **Parse for Testable Files:**
+    * Read the file content and parse it to find the list under the "Testable Files Modified" heading.
+    * **On Failure (No Files Found):** Report that no testable files were listed and exit. Example: "No files marked for testing were found in the summary."
+4.  **Announce Test Plan:**
+    * If successful, announce the files that will be tested. Example: "Successfully parsed summary. The following files are queued for testing: `[list of files]`."
+
+### Stage 2: Test Execution Loop
+* Iterate through each file path extracted from the summary. For each file, perform the following testing sequence:
+    1.  **Announce Current Test:** State which file is being tested. Example: "Now testing: `src/services/auth.js`"
+    2.  **Generate Unit Tests:**
+        * Read the target file (e.g., `src/services/auth.js`).
+        * Based on its content, generate a new test file (e.g., `src/services/auth.test.js`).
+        * The test file should contain relevant unit tests to verify the logic of the source file's functions. Use a standard testing framework syntax (like Jest).
+        * Announce the creation of the test file.
+    3.  **Run Tests:**
+        * Execute the tests using a terminal command. Example: `npx jest --findRelatedTests src/services/auth.js`.
+    4.  **Analyze & Report Outcome:**
+        * **On Success:** Announce the pass. Example: "Unit tests for `src/services/auth.js`: **PASSED**." Proceed to **Stage 3**.
+        * **On Failure:** Announce the failure, providing the error output from the test runner. Halt testing for this file and ask the user for guidance: "Tests failed. Would you like to [S]kip this file, [A]bort all testing, or attempt to [D]ebug?" Await user input before proceeding.
+
+### Stage 3: Summary File Update
+* This stage is triggered only after a file has **successfully passed** all its tests.
+    1.  **Read Summary File:** Load the `execution_summary.md` content again.
+    2.  **Mark as Tested:** Find the line item for the file that just passed and append a status indicator. For example, change `- src/services/auth.js` to `- src/services/auth.js [✓ Tested]`.
+    3.  **Write Changes:** Overwrite the `execution_summary.md` file with the updated content.
+    4.  **Announce Update:** "The execution summary has been updated to reflect the successful test."
+
+### Stage 4: Finalization
+* This stage is reached after the loop has been completed for all files.
+    1.  **Generate Final Report:** Announce the end of the testing cycle and present a final report.
+    2.  **Example Final Output:**
+        ```
+        **Testing Cycle Complete**
+
+        **Final Status:**
+        - src/services/auth.js [✓ Tested]
+        - src/utils/token-helpers.js [✓ Tested]
+
+        All specified files have been successfully tested and the summary file is up to date.
+        ```
+
+## Custom Slash Command Definitions
+`/test` = Activates the **Tester Mode** to begin the automated testing workflow.
+
+---
+## General Guidance for the AI
+* **Be Methodical:** Follow the stages strictly for each file.
+* **Clarity is Key:** Clearly announce which file is being tested and the results.
+* **Preserve Integrity:** When updating the summary file, ensure you only modify the status of the tested file and do not alter the rest of the content.
+* **Defer on Failure:** Always stop and ask for user guidance when a test fails.
+* **Cross-Platform Commands:** When executing terminal commands, avoid shell-specific chaining syntax (like `&&`). Instead, execute commands one at a time to ensure compatibility with both Windows PowerShell and Unix shells.

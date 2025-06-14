@@ -1,0 +1,115 @@
+---
+# Rule: Plan/Act Workflow System
+# Version: 2.3
+# Author: Daniel Sinitsky
+# Date: June 14, 2025
+---
+
+description: "Enables a structured plan/act workflow optimized for an AI agent. Use '(plan)' or '/plan' to generate a detailed, machine-readable plan, and '(act)' or '/act' to have the agent execute that plan. The AI will save plans to 'current_plan.md'."
+globs: [] # This rule is not auto-attached based on specific files, but relies on keywords/commands.
+alwaysApply: true # This rule's logic should always be available to interpret (plan)/(act) keywords.
+
+# Plan/Act Workflow System
+
+## Core Principle
+This system divides complex tasks into two distinct phases: **Planning** and **Acting**. This ensures clarity, allows for user review before changes are made, and leverages a structured, machine-readable plan for reliable execution by an AI agent, culminating in a clear summary for downstream processes.
+
+## Mode Triggering and State Management
+1.  **Explicit Triggers:**
+    * If the user's prompt starts with **"(plan)"** or uses the slash command **"/plan"**, activate **Planner Mode**.
+    * If the user's prompt starts with **"(act)"** or uses the slash command **"/act"**, activate **Executor Mode**.
+2.  **Implicit Triggers & Transitions:**
+    * **After Planner Mode presents a plan:** If the user's next prompt indicates approval (e.g., "Looks good, proceed"), interpret this as a request to switch to **Executor Mode**.
+    * **General Inquiries:** If in either mode, and the user asks a general question, answer it, then remind the user of the current state. Example: "We are currently in [Planner/Executor Mode]. Would you like to continue, replan, or abandon the current task?"
+
+## Planner Mode
+
+**Primary Objective:** To produce a comprehensive, step-by-step, **machine-readable** implementation plan. **No code will be written or modified in this mode.**
+
+**Instructions for AI in Planner Mode:**
+
+1.  **Acknowledge Mode:** Start by stating: "**Entering Planner Mode.**"
+2.  **Understand & Analyze Requirements:** Review the user's request and existing code.
+3.  **Clarify and Articulate Assumptions:** Ask clarifying questions and state assumptions.
+4.  **Generate a Detailed, Agent-Optimized Plan:**
+    * Break the problem into discrete, atomic steps.
+    * **For any step that creates or modifies code, the instructions must include adding a comment at the top of the file declaring it as testable.**
+5.  **Output the Plan to a File in Structured Format:**
+    * Present the plan in a YAML-like format within `current_plan.md`. Overwrite if the file exists.
+    * **Announce this action:** "The detailed, agent-optimized implementation plan has been saved to `current_plan.md`."
+    * **Example `current_plan.md` structure:**
+        ```yaml
+        objective: "Refactor the authentication service to use a new JWT library."
+        plan:
+          - step: 1
+            description: "Analyze the existing authentication service."
+            tool: "read_file"
+            parameters:
+              file_path: "src/services/auth.js"
+          - step: 2
+            description: "Modify the service and mark as testable."
+            tool: "edit_file"
+            parameters:
+              file_path: "src/services/auth.js"
+              instructions:
+                - "At the very top of the file, add the comment: '// This file is designed for unit and integration testing.'"
+                - "Remove the import for 'old-jwt-lib'."
+                - "Add an import for 'new-jwt-lib'."
+                # ... other instructions ...
+        ```
+6.  **Await User Review and Approval:** Prompt the user to review the plan and approve execution.
+
+## Executor Mode (Modular Workflow)
+
+**Primary Objective:** To parse and methodically implement the plan, keeping track of modified files for a final summary.
+
+**Instructions for AI in Executor Mode:**
+
+### Stage 1: Initialization & Plan Loading
+1.  **Acknowledge Mode:** Start by stating: "**Entering Executor Mode.**"
+2.  **Initialize Tracker:** Create an empty internal list to track testable files (e.g., `testable_files = []`).
+3.  **Load & Parse Plan:** Read and parse `current_plan.md`. On failure, report the error and exit.
+4.  **Announce Objective:** If successful, announce the plan's objective. Example: "Successfully loaded plan. **Objective:** Refactor the authentication service. Beginning execution..."
+
+### Stage 2: Step-by-Step Execution Loop
+* Iterate through each step in the parsed `plan` array sequentially:
+    1.  **Announce Step:** State the current action. Example: "Executing Step 2: Modify the service..."
+    2.  **Track Testable Files:** Before execution, check if the step's `tool` is `edit_file` or `create_file` and if its `instructions` include adding the 'testable' comment. If so, add the `file_path` from the step's parameters to your internal `testable_files` list.
+    3.  **Execute Tool:** Invoke the `tool` with the exact `parameters` from the plan.
+    4.  **Monitor Outcome:**
+        * **On Success:** Summarize the result and proceed.
+        * **On Failure:** Halt and proceed to **Stage 3: Error Handling**.
+
+### Stage 3: Error Handling
+* Triggered only on step failure.
+    1.  **Pause Execution:** Stop all further actions.
+    2.  **Report the Issue:** Explain the error.
+    3.  **Request Guidance:** Ask the user for instructions ([S]kip, [A]bort, [R]etry).
+    4.  **Await User Command:** Do not proceed without explicit direction.
+
+### Stage 4: Finalization & Summary
+* Reached after successful completion of all steps.
+    1.  **Generate Execution Summary:** Announce completion and present a structured summary. This summary **must** include the list of files recorded in the `testable_files` tracker.
+    2.  **Example Final Output:**
+        ```
+        **Execution Summary**
+
+        Implementation based on `current_plan.md` is complete.
+
+        **Testable Files Modified:**
+        The following files were created or modified and have been marked as ready for testing:
+        - src/services/auth.js
+        - src/utils/token-helpers.js
+
+        Please review the changes.
+        ```
+    3.  **Prompt for Review:** Encourage the user to review the final state of the project.
+
+## Custom Slash Command Definitions
+`/plan` = Activate **Planner Mode**.
+`/act` = Activate **Executor Mode**.
+
+## General Guidance for the AI
+* **Clarity is Key:** Always be explicit about your current mode and stage.
+* **Structured Context:** `current_plan.md` is the single source of truth for the task.
+* **User Guidance is Paramount:** In case of ambiguity or error, always defer to the user.
