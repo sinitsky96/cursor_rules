@@ -1,0 +1,72 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+description: "A policy for generating NRF C code. Instructs the AI to proactively write all logging statements according to strict conventions: use NRFX_LOG_INFO, log one variable per line, and use a specific structure for floats."
+globs: ["**/*.c", "**/*.h"]
+alwaysApply: true
+
+# NRF Proactive Logging Policy
+
+## Primary Objective
+To ensure that any C code **generated or modified** by the AI automatically and proactively adheres to the established NRF logging standards. This is a code generation guideline, not a post-analysis tool.
+
+---
+
+## Code Generation Directives
+
+**Instructions for AI:**
+When you are requested to write or modify C code, you **must** adhere to the following logging directives without exception.
+
+### Directive 1: Default to `NRFX_LOG_INFO`
+All general-purpose logging must use the `NRFX_LOG_INFO` macro. The only exception is the specific case of logging floating-point numbers.
+
+* **Correct Implementation:**
+    ```c
+    uint32_t status_code = 0;
+    NRFX_LOG_INFO("Process complete with status: %d", status_code);
+    ```
+* **Incorrect Implementation:**
+    ```c
+    // AVOID THIS:
+    NRFX_LOG_WARNING("Process complete with status: %d", status_code);
+    NRFX_LOG_DEBUG("Starting task...");
+    ```
+
+### Directive 2: Isolate Each Logged Variable
+Every variable must be printed in a separate `NRFX_LOG_INFO` statement. Never combine multiple variables into a single logging call.
+
+* **Correct Implementation:**
+    ```c
+    uint8_t task_id = 3;
+    uint32_t result = 100;
+    NRFX_LOG_INFO("Executing task ID: %d", task_id);
+    NRFX_LOG_INFO("Result was: %d", result);
+    ```
+* **Incorrect Implementation:**
+    ```c
+    // AVOID THIS:
+    NRFX_LOG_INFO("Task ID: %d, Result: %d", task_id, result);
+    ```
+
+### Directive 3: Use the Correct Structure for Floats
+All floating-point variables must be logged using the `NRFX_LOG_ERROR` macro in conjunction with `NRF_LOG_FLOAT_MARKER` and the `NRF_LOG_FLOAT()` helper. Do not use `%f` in `NRFX_LOG_INFO`.
+
+* **Correct Implementation:**
+    ```c
+    float sensor_reading = 3.14159f;
+    NRFX_LOG_ERROR("Sensor reading: " NRF_LOG_FLOAT_MARKER, NRF_LOG_FLOAT(sensor_reading));
+    ```
+* **Incorrect Implementation:**
+    ```c
+    // AVOID THIS:
+    NRFX_LOG_INFO("Sensor reading: %f", sensor_reading);
+    ```
+
+---
+
+## Final Verification
+**Instructions for AI:**
+
+Before finalizing any response containing C code, perform a quick self-check on the code you have just written to confirm all generated logging statements fully comply with these directives.

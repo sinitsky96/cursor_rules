@@ -1,82 +1,75 @@
-# Cursor Rules: Plan-Act-Test Workflow
+# Cursor Rules Directory
 
-A comprehensive set of Cursor IDE rules that implement a structured plan-act-test workflow for AI-assisted development. This system provides a methodical approach to complex coding tasks by breaking them into three distinct phases: planning, execution, and testing.
+A collection of Cursor IDE rules for enhanced AI-assisted development workflows. Each rule provides specialized functionality to improve code quality, development process, and productivity.
 
-## Overview
+## Available Rules
 
-This project contains Cursor IDE rules that enable:
-- **Planning Phase**: Generate detailed, machine-readable implementation plans
-- **Execution Phase**: Execute plans step-by-step with error handling and progress tracking
-- **Testing Phase**: Automatically generate and run tests for modified files
+### 🔄 Workflow Management
 
-## Files
+#### `plan-act-workflow.mdc`
+**Plan/Act Workflow System** - Implements a structured two-phase development approach
+- **Triggers**: `(plan)` or `/plan` for planning, `(act)` or `/act` for execution
+- **Features**: Machine-readable plans, step-by-step execution, error handling, progress tracking
+- **Use Case**: Complex development tasks requiring structured planning and methodical implementation
 
-### `plan-act-workflow.mdc`
-The core workflow system that implements the plan/act cycle:
-- **Planner Mode**: Triggered with `(plan)` or `/plan` - generates structured implementation plans
-- **Executor Mode**: Triggered with `(act)` or `/act` - executes plans step-by-step
-- Saves plans to `current_plan.md` for structured execution
-- Tracks testable files and provides execution summaries
+#### `test-workflow.mdc`
+**Test Runner Workflow System** - Automated testing agent for quality assurance
+- **Triggers**: `/test` 
+- **Features**: Automatic unit test generation, test execution, summary updates
+- **Use Case**: Automated testing of files marked as testable from the plan-act workflow
 
-### `test-workflow.mdc`
-The testing component that complements the plan-act workflow:
-- **Tester Mode**: Triggered with `/test` - runs comprehensive testing on modified files
-- Automatically generates unit tests for testable files
-- Updates execution summaries with test results
-- Provides full development cycle from planning to verification
+### 📋 Code Analysis
 
-## Usage
+#### `review-workflow.mdc`
+**Code Review Assistant** - Focused code analysis with evidence-based responses
+- **Triggers**: `(review)` or `/review` on selected files/folders
+- **Features**: Grounded analysis, claim-backed explanations, no speculation
+- **Use Case**: Thorough code review sessions with verifiable, fact-based insights
 
-### Planning Phase
-```
-(plan) Implement user authentication system
-```
-or
-```
-/plan Implement user authentication system
-```
+### 🔧 Language-Specific Policies
 
-### Execution Phase
-```
-(act)
-```
-or
-```
-/act
-```
+#### `nrfx_logging.mdc`
+**NRF C Code Logging Policy** - Enforces strict logging conventions for NRF development
+- **Triggers**: Automatically applied to `**/*.c` and `**/*.h` files
+- **Features**: Proactive logging standards, NRFX_LOG_INFO usage, float handling
+- **Use Case**: NRF-based embedded development requiring consistent logging patterns
 
-### Testing Phase
-```
-/test
-```
+## Usage Patterns
 
-## Key Features
+### Complete Development Cycle
+1. **Plan** → `/plan <task description>` - Generate implementation plan
+2. **Act** → `/act` - Execute the plan step-by-step  
+3. **Test** → `/test` - Run automated tests on modified files
+4. **Review** → `/review` - Analyze and validate the implementation
 
-- **Machine-readable plans**: Plans are saved in YAML-like format for reliable execution
-- **Error handling**: Comprehensive error handling with user guidance options
-- **Progress tracking**: Tracks modified files and execution status
-- **Automated testing**: Generates and runs unit tests for modified code
-- **Cross-platform compatibility**: Works with both Windows PowerShell and Unix shells
-- **State management**: Clear mode transitions and state awareness
+### Standalone Operations
+- **Quick Review**: `/review` on any file or folder for immediate analysis
+- **NRF Development**: Automatic logging policy enforcement on C files
+- **Testing Only**: `/test` on existing execution summaries
 
-## Workflow Example
+## Key Benefits
 
-1. **Plan**: Use `/plan` to create a detailed implementation plan
-2. **Review**: Review the generated plan in `current_plan.md`
-3. **Execute**: Use `/act` to execute the plan step-by-step
-4. **Test**: Use `/test` to run automated tests on modified files
-5. **Summary**: Get comprehensive reports at each stage
+- **🎯 Structured Development**: Clear phases prevent rushed implementations
+- **✅ Quality Assurance**: Built-in testing ensures code reliability  
+- **📊 Traceability**: Complete audit trail from planning to testing
+- **🔍 Evidence-Based Analysis**: Code review backed by actual code examples
+- **⚡ Automated Workflows**: Reduced manual overhead in development cycles
+- **🛡️ Policy Enforcement**: Consistent coding standards across projects
 
 ## Installation
 
 1. Copy the `.mdc` files to your Cursor rules directory
-2. The rules will be automatically available in your Cursor IDE
-3. Use the trigger commands to activate different workflow modes
+2. Rules are automatically loaded and available in Cursor IDE
+3. Use the trigger commands to activate specific workflows
 
-## Benefits
+## Contributing
 
-- **Structured Development**: Clear separation of planning, execution, and testing phases
-- **Quality Assurance**: Built-in testing ensures code quality
-- **Traceability**: Complete audit trail from plan to tested implementation
-- **Error Recovery**: Robust error handling with user guidance
-- **Efficiency**: Automated workflows reduce manual overhead
+Each rule is self-contained and can be modified independently. When adding new rules:
+- Include clear trigger mechanisms
+- Provide comprehensive documentation
+- Follow the established pattern of mode-based operation
+- Update this README to include the new rule
+
+---
+
+*Version: 2.0 | Last Updated: December 2024*
