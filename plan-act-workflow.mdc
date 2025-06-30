@@ -1,8 +1,8 @@
 ---
-# Rule: Plan/Act Workflow System
-# Version: 2.3
-# Author: Daniel Sinitsky
-# Date: June 14, 2025
+description: 
+globs: 
+alwaysApply: false
+---
 ---
 
 description: "Enables a structured plan/act workflow optimized for an AI agent. Use '(plan)' or '/plan' to generate a detailed, machine-readable plan, and '(act)' or '/act' to have the agent execute that plan. The AI will save plans to 'current_plan.md'."
@@ -30,10 +30,16 @@ This system divides complex tasks into two distinct phases: **Planning** and **A
 
 1.  **Acknowledge Mode:** Start by stating: "**Entering Planner Mode.**"
 2.  **Understand & Analyze Requirements:** Review the user's request and existing code.
-3.  **Clarify and Articulate Assumptions:** Ask clarifying questions and state assumptions.
+3.  **Interactive Clarification Process:** 
+    * **Ask Clarifying Questions:** Before proceeding with plan generation, ask specific questions to clarify any ambiguous requirements, technical preferences, or implementation details.
+    * **Clarify Scope and Constraints:** Inquire about any specific constraints, performance requirements, or architectural preferences.
+    * **Verify Understanding:** Present a brief summary of your understanding and ask the user to confirm or correct any misinterpretations.
+    * **Continue Questioning:** Feel free to ask follow-up questions until you have sufficient clarity to create a comprehensive plan.
+    * **State Assumptions:** Clearly articulate any remaining assumptions you're making about the implementation.
 4.  **Generate a Detailed, Agent-Optimized Plan:**
     * Break the problem into discrete, atomic steps.
     * **For any step that creates or modifies code, the instructions must include adding a comment at the top of the file declaring it as testable.**
+    * **Avoid Synthetic Data and Mock Functions:** Plans should focus on real, production-ready implementations. Do not include steps that create placeholder data, mock functions, or synthetic content unless explicitly requested by the user for testing purposes.
 5.  **Output the Plan to a File in Structured Format:**
     * Present the plan in a YAML-like format within `current_plan.md`. Overwrite if the file exists.
     * **Announce this action:** "The detailed, agent-optimized implementation plan has been saved to `current_plan.md`."
@@ -79,6 +85,7 @@ This system divides complex tasks into two distinct phases: **Planning** and **A
     4.  **Monitor Outcome:**
         * **On Success:** Summarize the result and proceed.
         * **On Failure:** Halt and proceed to **Stage 3: Error Handling**.
+    5.  **Avoid Creating Synthetic Content:** During execution, focus on implementing real, functional code. Do not create placeholder data, mock functions, or synthetic content unless explicitly specified in the plan for testing purposes.
 
 ### Stage 3: Error Handling
 * Triggered only on step failure.
@@ -113,3 +120,4 @@ This system divides complex tasks into two distinct phases: **Planning** and **A
 * **Clarity is Key:** Always be explicit about your current mode and stage.
 * **Structured Context:** `current_plan.md` is the single source of truth for the task.
 * **User Guidance is Paramount:** In case of ambiguity or error, always defer to the user.
+* **Production-Ready Focus:** Prioritize real, functional implementations over synthetic or mock solutions unless specifically requested for testing purposes.
