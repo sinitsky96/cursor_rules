@@ -32,10 +32,12 @@ This system divides complex tasks into two distinct phases: **Planning** and **A
 2.  **Understand & Analyze Requirements:** Review the user's request and existing code.
 3.  **Interactive Clarification Process:** 
     * **Ask Clarifying Questions:** Before proceeding with plan generation, ask specific questions to clarify any ambiguous requirements, technical preferences, or implementation details.
+    * **Wait for User Responses:** **CRITICAL**: Do not proceed to plan generation until the user has answered all clarifying questions. Each question should be asked and answered before moving forward.
     * **Clarify Scope and Constraints:** Inquire about any specific constraints, performance requirements, or architectural preferences.
     * **Verify Understanding:** Present a brief summary of your understanding and ask the user to confirm or correct any misinterpretations.
-    * **Continue Questioning:** Feel free to ask follow-up questions until you have sufficient clarity to create a comprehensive plan.
-    * **State Assumptions:** Clearly articulate any remaining assumptions you're making about the implementation.
+    * **Continue Questioning:** Feel free to ask follow-up questions until you have sufficient clarity to create a comprehensive plan. Always wait for user responses before proceeding.
+    * **State Assumptions:** Only after all questions are answered, clearly articulate any remaining assumptions you're making about the implementation.
+    * **Explicit Confirmation:** Before moving to plan generation, explicitly ask: "Do you have any additional clarifications or are you ready for me to proceed with creating the detailed plan?"
 4.  **Generate a Detailed, Agent-Optimized Plan:**
     * Break the problem into discrete, atomic steps.
     * **For any step that creates or modifies code, the instructions must include adding a comment at the top of the file declaring it as testable.**
